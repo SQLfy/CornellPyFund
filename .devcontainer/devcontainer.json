@@ -1,0 +1,21 @@
+{
+  "name": "pyfundamentals",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+      ]
+    }
+  },
+  "postCreateCommand": "python -m ipykernel install --user --name=pyfundamentals --display-name='Python (pyfundamentals)'",
+  "forwardPorts": [8888],
+  "containerEnv": {
+    "JUPYTER_ENABLE_LAB": "yes"
+  }
+}
