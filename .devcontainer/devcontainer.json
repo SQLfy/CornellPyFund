@@ -13,7 +13,7 @@
       ]
     }
   },
-  "postCreateCommand": "python -m ipykernel install --user --name=pyfundamentals --display-name='Python (pyfundamentals)'",
+  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && python -m ipykernel install --user --name=pyfundamentals --display-name='Python (pyfundamentals)'",
   "forwardPorts": [8888],
   "containerEnv": {
     "JUPYTER_ENABLE_LAB": "yes"
