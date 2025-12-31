@@ -28,21 +28,18 @@ def row_sums(table):
     #itmsum = 0
     
     num_rows = len(table)
-    print({num_rows})
+    #print({num_rows})
     num_cols = len(table[0])
-    print({num_cols})
+    #print({num_cols})
 
     for row in table: #for each row add the itms in the row
         itmsum = 0
         for itm in row:
             itmsum = itm + itmsum
-            print({itmsum})
-        print({row})
-
-    return itmsum
+            #print({itmsum})
+        result.append(itmsum)
+    return result
     
-
-
 
 def crossout(table,row,col):
     """
@@ -66,4 +63,16 @@ def crossout(table,row,col):
     Parameter col: the colummn to remove
     Precondition: col is an index (int) for a column of table
     """
-    pass
+    #crossout([[1,3,5],[6,2,7],[5,8,4]],1,2) returns [[1,3],[5,8]]
+
+    result = []
+    
+    for r in range(len(table)):
+        if r != row:  # Skip the row to remove
+            new_row = []
+            for c in range(len(table[r])):
+                if c != col:  # Skip the column to remove
+                    new_row.append(table[r][c])
+            result.append(new_row)
+    
+    return result
