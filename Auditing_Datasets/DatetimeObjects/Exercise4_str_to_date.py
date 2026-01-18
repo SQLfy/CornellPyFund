@@ -65,7 +65,18 @@ def sunset(date,daycycle):
     """
     # HINT: ISO FORMAT IS 'yyyy-mm-ddThh:mm'.  Find the sunset value by constructing a
     # string in ISO format and calling str_to_time.
-    pass                    # Implement this function
+                 
+
+    try:
+        year_key = str(date.year)
+        date_key = date.strftime("%m-%d")  # Note: "mm-dd" format per docstring
+        sunset_str = daycycle[year_key][date_key]["sunset"]
+        iso_str = f"{date.strftime('%Y-%m-%d')}T{sunset_str}"
+        return str_to_time(iso_str)
+    
+    except:
+        return None
+
 
 if __name__ == "__main__":
     print(str_to_time("2024-06-18 14:30"))
