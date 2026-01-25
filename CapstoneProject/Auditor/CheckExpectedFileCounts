@@ -1,0 +1,12 @@
+Note the use of os.path to access a dataset in a parent directory. Similarly, you can analyze the dataset KITH-2019.
+You should find:
+169 violations for KITH-2018 
+223 for KITH-2019 (the school gets sloppier every year).
+
+As shown in the course videos, the application is controlled by the file __main__.py. 
+If you look at this file, you will see that it calls a function execute in app. 
+In this section you will implement this function and its helper.
+
+>>> import tests
+>>> tests.test_app()
+Testing module app (this may take a while)
