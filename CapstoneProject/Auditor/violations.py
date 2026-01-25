@@ -576,10 +576,10 @@ def list_weather_violations(directory):
         student_id = lesson[0]  # 0th item from THIS lesson
         area = lesson[6]
         instructor = lesson[2]
-        vfr_str = lesson[5]
+        lesson_vfr_str = lesson[5]
 
         # Convert VFR string to boolean
-        vfr = (vfr_str == 'VFR')  # True if VFR, False if IFR
+        vfr = (lesson_vfr_str == 'VFR')  # True if VFR, False if IFR
     
         # Is instructor is present (not empty string)
         instructed = (instructor != '')
@@ -634,7 +634,6 @@ def list_weather_violations(directory):
         if violation != '':
             violated_lesson = lesson + [violation]  # Append violation to lesson
             lesson_violated.append(violated_lesson)
-            #print(f'VIOLATION: {violation}')
     
     return lesson_violated
 
