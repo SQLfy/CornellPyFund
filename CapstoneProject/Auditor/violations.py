@@ -566,10 +566,10 @@ def list_weather_violations(directory):
             elif filename.endswith('.json'):
                 data[namemap] = utils.read_json(filepath)
         
-            print(f'Loaded {filename} as {namemap}')
+            #print(f'Loaded {filename} as {namemap}')
 
     for lesson in data['LESSONS'][1:]:
-        print(lesson)
+        #print(lesson)
         takeoff_str = lesson[3]  # 3rd item from THIS lesson
         takeoff = utils.str_to_time(takeoff_str)
 
@@ -584,7 +584,7 @@ def list_weather_violations(directory):
         # Is instructor is present (not empty string)
         instructed = (instructor != '')
     
-        print(f'area: {area}, instructor: {instructor}, vfr: {vfr}')
+        #print(f'area: {area}, instructor: {instructor}, vfr: {vfr}')
 
         # ====== get student record =============
         student = None
@@ -594,17 +594,17 @@ def list_weather_violations(directory):
                 break
     
         if student is None:
-            print(f'Student {student_id} not found!')
+            #print(f'Student {student_id} not found!')
             continue
     
         # ====== get credentials =============
-        print(f'Takeoff: {takeoff} Student Id: {student_id}')
+        #print(f'Takeoff: {takeoff} Student Id: {student_id}')
         pilot_cred = pilots.get_certification(takeoff, student)
-        print(f'pilot_cred = {pilot_cred}')
+        #print(f'pilot_cred = {pilot_cred}')
 
         # ====== get daytime ==================
         lesson_daytime = utils.daytime(takeoff, data['DAYCYCLE'])
-        print(f'lesson_daytime: {lesson_daytime}')
+        #print(f'lesson_daytime: {lesson_daytime}')
 
         # ====== get pilot minimums ===========
         #returns
@@ -617,7 +617,7 @@ def list_weather_violations(directory):
         lesson_daytime,  # boolean
         data['MINIMUMS'] # minimums table
         )
-        print(f'pilot_minimums: {pilot_minimums}')
+        #print(f'pilot_minimums: {pilot_minimums}')
 
         # ====== get weather for takeoff ===========
 
@@ -628,13 +628,13 @@ def list_weather_violations(directory):
         # ====== get weather violations ===========
         if pilot_minimums is not None and weather is not None:
             violation = get_weather_violation(weather, pilot_minimums)
-            print(f'violation: {violation}')
+            #print(f'violation: {violation}')
 
         # Add result to list
         if violation != '':
             violated_lesson = lesson + [violation]  # Append violation to lesson
             lesson_violated.append(violated_lesson)
-            print(f'VIOLATION: {violation}')
+            #print(f'VIOLATION: {violation}')
     
     return lesson_violated
 
