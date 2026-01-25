@@ -534,38 +534,109 @@ def list_weather_violations(directory):
 
     #This function returns a list that contains a copy of each violating lesson, together 
     #with the violation appended to the lesson.
+
+    #import os
+    #import utils
+    #import pilots
+
     filemap = {
-    'minimums.csv': 'MINIMUMS', 
-    'students.csv': 'STUDENTS', 
-    'lessons.csv': 'LESSONS'
-    'daycycle.json': 'DAYCYCLE', 
+    'minimums.csv':'MINIMUMS', 
+    'students.csv':'STUDENTS', 
+    'lessons.csv':'LESSONS',
+    'daycycle.json':'DAYCYCLE', 
     'weather.json':'WEATHER'
     }
-
+    data = {}
     lesson_violated = []
     return_violation = []
-    directory = '/path/to/your/directory'
+    directory = '/home/codio/workspace/KITH-2017'
 
     # Loop through files in directory
-    for filename in os.listdir(directory):
-        # Check if this file is in our expected list
-        if filename in file_map:
-        # Build full path
-            filepath = os.path.join(directory, filename)
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+        # Skip files not in our mapping
+            if filename not in filemap:
+                continue
+            filepath = os.path.join(root, filename)
+            namemap = filemap[filename]
         
-        # Read based on file type
-        if filename.endswith('.csv'):
-            file_map[filename] = read_csv(filepath)
-        elif filename.endswith('.json'):
-            file_map[filename] = read_json(filepath)
-            #print() print out line count for the given file
+            # Read based on file type
+            if filename.endswith('.csv'):
+                data[namemap] = utils.read_csv(filepath)
+            elif filename.endswith('.json'):
+                data[namemap] = utils.read_json(filepath)
+        
+            print(f'Loaded {filename} as {namemap}')
 
-# Now access your data
-#pilots_data = file_mapping['pilots.csv']
-#weather_data = file_mapping['weather.json']
+    for lesson in data['LESSONS'][1:]:
+        print(lesson)
+        takeoff_str = lesson[3]  # 3rd item from THIS lesson
+        takeoff = utils.str_to_time(takeoff_str)
 
+        student_id = lesson[0]  # 0th item from THIS lesson
+        area = lesson[6]
+        instructor = lesson[2]
+        vfr_str = lesson[5]
 
+        # Convert VFR string to boolean
+        vfr = (vfr_str == 'VFR')  # True if VFR, False if IFR
+    
+        # Is instructor is present (not empty string)
+        instructed = (instructor != '')
+    
+        print(f'area: {area}, instructor: {instructor}, vfr: {vfr}')
 
+        # ====== get student record =============
+        student = None
+        for s in data['STUDENTS'][1:]:  # Skip header
+            if s[0] == student_id:  # Match on student ID (column 0)
+                student = s
+                break
+    
+        if student is None:
+            print(f'Student {student_id} not found!')
+            continue
+    
+        # ====== get credentials =============
+        print(f'Takeoff: {takeoff} Student Id: {student_id}')
+        pilot_cred = pilots.get_certification(takeoff, student)
+        print(f'pilot_cred = {pilot_cred}')
 
+        # ====== get daytime ==================
+        lesson_daytime = utils.daytime(takeoff, data['DAYCYCLE'])
+        print(f'lesson_daytime: {lesson_daytime}')
+
+        # ====== get pilot minimums ===========
+        #returns
+        #[best_ceiling, best_visibility, best_wind, best_crosswind]
+        pilot_minimums = pilots.get_minimums(
+        pilot_cred,      # cert
+        area,            # area
+        instructed,      # boolean
+        vfr,             # boolean
+        lesson_daytime,  # boolean
+        data['MINIMUMS'] # minimums table
+        )
+        print(f'pilot_minimums: {pilot_minimums}')
+
+        # ====== get weather for takeoff ===========
+
+        #get_weather_report(takeoff,weather)
+        takeoff_key = takeoff_str  # or format it to match your weather keys
+        weather = data['WEATHER'].get(takeoff_key)
+
+        # ====== get weather violations ===========
+        if pilot_minimums is not None and weather is not None:
+            violation = get_weather_violation(weather, pilot_minimums)
+            print(f'violation: {violation}')
+
+        # Add result to list
+        if violation != '':
+            violated_lesson = lesson + [violation]  # Append violation to lesson
+            lesson_violated.append(violated_lesson)
+            print(f'VIOLATION: {violation}')
+    
     return lesson_violated
+
+
 
