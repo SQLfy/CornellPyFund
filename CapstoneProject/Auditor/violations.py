@@ -527,10 +527,6 @@ def list_weather_violations(directory):
     
     # for files in directory load the files into the listed file names
     # check if the file is a csv or a json file
-    # with the file load the file
-
-    #loop over lessons getting the takeoff
-    #for the pilot in the lessions get the credentials
 
     #This function returns a list that contains a copy of each violating lesson, together 
     #with the violation appended to the lesson.
@@ -549,7 +545,7 @@ def list_weather_violations(directory):
     data = {}
     lesson_violated = []
     return_violation = []
-    directory = '/home/codio/workspace/KITH-2017'
+    #directory = '/home/codio/workspace/KITH-2017'
 
     # Loop through files in directory
     for root, dirs, files in os.walk(directory):
@@ -558,7 +554,7 @@ def list_weather_violations(directory):
             if filename not in filemap:
                 continue
             filepath = os.path.join(root, filename)
-            namemap = filemap[filename]
+            namemap = filemap[filename] #assign filemap values e.g. 'LESSIONS'
         
             # Read based on file type
             if filename.endswith('.csv'):
@@ -566,7 +562,7 @@ def list_weather_violations(directory):
             elif filename.endswith('.json'):
                 data[namemap] = utils.read_json(filepath)
         
-            #print(f'Loaded {filename} as {namemap}')
+            #print(f'Loaded {filename} as {namemap}' into data dictionary)
 
     for lesson in data['LESSONS'][1:]:
         #print(lesson)
@@ -579,7 +575,7 @@ def list_weather_violations(directory):
         lesson_vfr_str = lesson[5]
 
         # Convert VFR string to boolean
-        vfr = (lesson_vfr_str == 'VFR')  # True if VFR, False if IFR
+        vfr = (lesson_vfr_str == 'VFR')  # True if Flight VFR rated, False if IFR
     
         # Is instructor is present (not empty string)
         instructed = (instructor != '')
@@ -612,9 +608,9 @@ def list_weather_violations(directory):
         pilot_minimums = pilots.get_minimums(
         pilot_cred,      # cert
         area,            # area
-        instructed,      # boolean
-        vfr,             # boolean
-        lesson_daytime,  # boolean
+        instructed,      # boolean instructor present
+        vfr,             # boolean flight lesson rating
+        lesson_daytime,  # boolean day or night lesson
         data['MINIMUMS'] # minimums table
         )
         #print(f'pilot_minimums: {pilot_minimums}')
@@ -623,9 +619,10 @@ def list_weather_violations(directory):
 
         #get_weather_report(takeoff,weather)
         takeoff_key = takeoff_str  # or format it to match your weather keys
-        weather = data['WEATHER'].get(takeoff_key)
+        weather = get_weather_report(takeoff, data['WEATHER'])
 
         # ====== get weather violations ===========
+        violation = ''
         if pilot_minimums is not None and weather is not None:
             violation = get_weather_violation(weather, pilot_minimums)
             #print(f'violation: {violation}')

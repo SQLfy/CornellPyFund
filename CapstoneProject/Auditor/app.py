@@ -25,7 +25,7 @@ import sys
 
 def discover_violations(directory,output):
     """
-    Searches the dataset directory for any flight lessons the violation regulations.
+    Searches the dataset directory for any flight lessons that violate the regulations.
     
     This function will call list_weather_violations() to get the list of weather violations.
     If list_endorsment_violations (optional) is completed, it will call that too, as
@@ -56,7 +56,63 @@ def discover_violations(directory,output):
     Parameter output: The CSV file to store the results
     Precondition: output is None or a string that is a valid file name
     """
-    pass                    # Implement this function
+    #header for output
+    header = ['STUDENT','AIRPLANE','INSTRUCTOR','TAKEOFF','LANDING','FILED','AREA','REASON']
+    all_violations = []
+    weather_violations = []
+    violation_ct = 0
+    #full_path = os.path.join(directory, item)
+    #for item in os.listdir(directory):
+
+    # File map to check for required files
+    # File map to check for required files
+    filemap = {
+        'minimums.csv': 'MINIMUMS', 
+        'students.csv': 'STUDENTS', 
+        'lessons.csv': 'LESSONS',
+        'daycycle.json': 'DAYCYCLE', 
+        'weather.json': 'WEATHER'
+    }
+    isfile_folder = all(os.path.exists(os.path.join(directory, filename)) 
+                for filename in filemap.keys())
+
+    if isfile_folder:
+        # Process this directory directly
+        weather_violations = violations.list_weather_violations(directory)
+        all_violations.extend(weather_violations)
+
+    else:
+        # Look for subdirectories that contain the files
+        for item in os.listdir(directory):
+            full_path = os.path.join(directory, item)
+            
+            if os.path.isdir(full_path):
+                # Check if THIS subdirectory has all required files
+                isfile_folder = all(os.path.exists(os.path.join(full_path, filename)) 
+                                   for filename in filemap.keys())
+                
+                if isfile_folder:
+                    weather_violations = violations.list_weather_violations(full_path)
+                    all_violations.extend(weather_violations)
+    
+    # Count violations
+    violation_ct = len(all_violations)
+
+    #======== create output file ==============
+    if output is not None:
+        # Write violations to CSV file
+        utils.write_csv([header] + all_violations, output)
+
+    #========= print to screen regardless of output file requirements  
+    
+    if violation_ct == 0:
+        print(f'No violations found.')
+    elif violation_ct == 1:
+        print(f'{violation_ct} violation found.')
+    else:
+        print(f'{violation_ct} violations found.')
+    
+    return all_violations
 
 
 def execute(args):
@@ -79,35 +135,29 @@ def execute(args):
     Parameter args: The command line arguments for the application (minus the application name)
     Precondition: args is a list of strings
     """
-    #hardcoded pwd
-    pwd = '/home/codio/workspace'  # Or use os.getcwd() if you import os too
     
-    if len(args) == 1:
-        input_folder = args[0]
+    # Handle the special case: just '--test'
+    if len(args) == 1 and args[0] == '--test':
+        tests.test_all()
+        return
 
-        folder_path = os.path.join(pwd, input_folder)
-        print(f'folder_path: {folder_path}')
-        
-        # Check if the folder exists
-        if os.path.exists(folder_path) and os.path.isdir(folder_path):
-            print(f"Found folder: {folder_path}")
-            # Process the folder...
-        else:
-            print(f"Error: Folder '{input_folder}' not found in {pwd}")
-            
-    elif len(args) == 2:
-        input_folder = args[0]
-        output_file = args[1]
-        
-        folder_path = os.path.join(pwd, input_folder)
-        
-        if os.path.exists(folder_path) and os.path.isdir(folder_path):
-            print(f"Found folder: {folder_path}")
-            print(f"Will output to: {output_file}")
-            # Process folder and write to output_file...
-        else:
-            print(f"Error: Folder '{input_folder}' not found in {pwd}")
-            
-    else:
+    # Check for correct number of arguments
+    if len(args) == 0 or len(args) > 2:
         print('Usage: python auditor dataset [output.csv]')
+        return
 
+    # Check if '--test' appears anywhere in a list of args (invalid)
+    if '--test' in args:
+        print('Usage: python auditor dataset [output.csv]')
+        return
+
+    # Happy path case: 1 or 2 arguments
+    if len(args) == 1:
+        # Just dataset, no output file
+        dataset = args[0]
+        discover_violations(dataset, None)
+    elif len(args) == 2:
+        # Dataset and output file
+        dataset = args[0]
+        output_file = args[1]
+        discover_violations(dataset, output_file)

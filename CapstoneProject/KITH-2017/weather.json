@@ -213198,32 +213198,6 @@
         "sky": "clear",
         "code": "201712271355Z"
     },
-    "2017-12-27T23:00:00-05:00": {
-        "visibility": {
-            "prevailing": 4.0,
-            "units": "SM"
-        },
-        "wind": {
-            "speed": 10.0,
-            "crosswind": 7.0,
-            "units": "KT"
-        },
-        "temperature": {
-            "value": -12.0,
-            "units": "C"
-        },
-        "sky": [
-            {
-                "type": "overcast",
-                "height": 1600.0,
-                "units": "FT"
-            }
-        ],
-        "weather": [
-            "light snow"
-        ],
-        "code": "201712280255Z"
-    },
     "2017-12-28T00:00:00-05:00": {
         "visibility": {
             "prevailing": 4.0,
@@ -214070,10 +214044,7 @@
         "code": "201712310656Z"
     },
     "2016-12-31T01:00:00-05:00": {
-        "visibility": {
-            "prevailing": 2.5,
-            "units": "SM"
-        },
+        "visibility": "unavailable",
         "wind": {
             "speed": 8.0,
             "crosswind": 4.0,

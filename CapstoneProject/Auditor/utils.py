@@ -108,29 +108,34 @@ def str_to_time(timestamp,tzsource=None):
     Parameter tzsource: The time zone to use (OPTIONAL)
     Precondition: tzsource is either None, a string naming a valid time zone,
     or a datetime object.
-    KT note:  The last condition is still a mystery.
     """
+    
     # HINT: Use the code from the previous exercise and add time zone handling.
     # Use localize if tzsource is a string; otherwise replace the time zone if not None
     try:
         # Parse the timestamp
         dt = parse(timestamp)
-        #default_tz = 'America/New_York' #read_json(daycycle)
-        
-        # Apply tzsource if parsed datetime has NO timezone
-        if dt.tzinfo is None and tzsource is not None:
-            if type(tzsource) == str:
-                # Use pytz to localize
-                tz = pytz.timezone(tzsource)
-                dt = tz.localize(dt)
-            else:
-                # tzsource is a datetime object - copy its timezone
-                dt = dt.replace(tzinfo=tzsource.tzinfo)
-        
-        return dt
-        
     except:
         return None
+       
+    # Apply tzsource if parsed datetime has no timezone
+    if dt.tzinfo is None and tzsource is not None:
+        if type(tzsource) == str:
+            # Use pytz to localize
+            tz = pytz.timezone(tzsource)
+            dt = tz.localize(dt)
+        else:
+            # tzsource is a datetime object - extract and localize with its timezone
+            if hasattr(tzsource.tzinfo, 'localize'):
+                # It's a pytz timezone - use localize
+                dt = tzsource.tzinfo.localize(dt)
+            else:
+                # It's a fixed offset timezone - replace is safe here
+                dt = dt.replace(tzinfo=tzsource.tzinfo)
+        
+    return dt
+        
+
 
 
 def daytime(time,daycycle):
@@ -173,7 +178,33 @@ def daytime(time,daycycle):
     """
     # HINT: Use the code from the previous exercise to get sunset AND sunrise
     # Add a timezone to time if one is missing (the one from the daycycle)
-    pass
+    #default tz
+    tz_name = daycycle['timezone']
+    target_tz = pytz.timezone(tz_name)  
+
+    try:
+        # Convert input time to daycycle's timezone
+        if time.tzinfo is None:
+            time = target_tz.localize(time)
+        else:
+            time = time.astimezone(target_tz)
+        
+        year_key = str(time.year)
+        date_key = time.strftime("%m-%d")
+        sunrise_str = daycycle[year_key][date_key]["sunrise"]
+        sunset_str = daycycle[year_key][date_key]["sunset"]
+        
+        date_str = time.strftime("%Y-%m-%d")
+        sunrise_iso = f"{date_str}T{sunrise_str}"
+        sunset_iso = f"{date_str}T{sunset_str}"
+        
+        sunrise_dt = target_tz.localize(parse(sunrise_iso))  
+        sunset_dt = target_tz.localize(parse(sunset_iso))  
+        
+        return sunrise_dt < time < sunset_dt
+        
+    except:
+        return None
 
 
 def get_for_id(id,table):
@@ -193,5 +224,11 @@ def get_for_id(id,table):
     Parameter table: The 2-dimensional table of data
     Precondition: table is a non-empty 2-dimension list of strings
     """
-    pass                    # Implement this function
+    for row in table:
+        #check the first column [0] in row
+        if row[0] == id:
+            return row[:]  # return the entire list range of that row
+    
+    return None  # No match for id found
+
 
