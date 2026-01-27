@@ -19,7 +19,7 @@ import violations
 import sys
 
 # Uncomment for the extra credit
-#import endorsements
+import endorsements
 #import inspections
 
 
@@ -60,6 +60,7 @@ def discover_violations(directory,output):
     header = ['STUDENT','AIRPLANE','INSTRUCTOR','TAKEOFF','LANDING','FILED','AREA','REASON']
     all_violations = []
     weather_violations = []
+    endorsement_violations =[]
     violation_ct = 0
     #full_path = os.path.join(directory, item)
     #for item in os.listdir(directory):
@@ -80,6 +81,9 @@ def discover_violations(directory,output):
         # Process this directory directly
         weather_violations = violations.list_weather_violations(directory)
         all_violations.extend(weather_violations)
+
+        endorsement_violations = endorsements.list_endorsement_violations(directory)
+        all_violations.extend(endorsement_violations)
 
     else:
         # Look for subdirectories that contain the files

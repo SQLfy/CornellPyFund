@@ -161,10 +161,10 @@ def has_advanced_endorsement(takeoff,student):
     ADVANCED = 8
 
     # Convert string to datetime (or None if empty)
-    instrument_time = utils.str_to_time(student[ADVANCED], takeoff) if student[ADVANCED] else None
+    advanced_time = utils.str_to_time(student[ADVANCED], takeoff) if student[ADVANCED] else None
     
     # If they have the rating AND takeoff is after they got it
-    if instrument_time and takeoff >= instrument_time:
+    if advanced_time and takeoff >= advanced_time:
         return True
     
     return False

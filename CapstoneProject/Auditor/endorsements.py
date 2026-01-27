@@ -53,14 +53,13 @@ def teaches_multiengine(instructor):
     Parameter instructor: The flight instructor
     Precondition: instructor is a 6-element list of strings representing an instructor
     """
-    # read the instructor file
+    # read the instructor list
     # where the MEI is Yes
-    # mark that id / instructor and return True
-    f = utils.read_csv(instructor)
-    for row in f:
-        if row[5] == 'Yes':    
-            return True
-    return False
+
+    if instructor[5] == 'Yes':
+        return True
+    else:
+        return False
 
 
 def teaches_instrument(instructor):
@@ -71,11 +70,10 @@ def teaches_instrument(instructor):
     Parameter instructor: The flight instructor
     Precondition: instructor is a 6-element list of strings representing an instructor
     """
-    f = utils.read_csv(instructor)
-    for row in f:
-        if row[4] == 'Yes':    
-            return True
-    return False
+    if instructor[4] == 'Yes':    
+        return True
+    else:
+        return False
 
 def is_advanced(plane):
     """
@@ -84,11 +82,10 @@ def is_advanced(plane):
     Parameter plane: The school airplane
     Precondition: plane is a 7-element list of strings representing an airplane
     """
-    f = utils.read_csv(plane)
-    for row in f:
-        if row[3] == 'Yes':
-            return True
-    return False
+    if plane[3] == 'Yes':
+        return True
+    else:
+        return False
 
 
 def is_multiengine(plane):
@@ -98,11 +95,10 @@ def is_multiengine(plane):
     Parameter plane: The school airplane
     Precondition: plane is a 7-element list of strings representing an airplane
     """
-    f = utils.read_csv(plane)
-    for row in f:
-        if row[4] == 'Yes':
-            return True
-    return False
+    if plane[4] == 'Yes':
+        return True
+    else:
+        return False
 
 
 def is_ifr_capable(plane):
@@ -115,11 +111,10 @@ def is_ifr_capable(plane):
     Parameter plane: The school airplane
     Precondition: plane is a 7-element list of strings representing an airplane
     """
-    f = utils.read_csv(plane)
-    for row in f:
-        if row[2] == 'IFR':
-            return True
-    return False
+    if plane[2] == 'IFR':
+        return True
+    else:
+        return False
 
 
 def bad_endorsement(takeoff,student,instructor,plane):
@@ -146,20 +141,27 @@ def bad_endorsement(takeoff,student,instructor,plane):
     Parameter plane: The school airplane
     Precondition: plane is a 7-element list of strings representing an airplane
     """
-    """
-    STUDENT,AIRPLANE,INSTRUCTOR,TAKEOFF,LANDING,FILED,AREA
-    S00842,133CZ,I053,2017-01-02T09:00:00-05:00,2017-01-02T11:00:00-05:00,VFR,Pattern
-    """
-    # read the lessons file
-    # read the plane file
-    # get the instructor if no instructor get the student
-    # check if there is an instructor in the lessons row row[2]
-    # first check the plane type is it multiengine
-    #.   does the instructor have multiengine
-    # if not check the students status
-    # if yes check the instructors status
+#bad_endorsement((datetime.datetime(2017, 1, 16, 8, 0, tzinfo=tzoffset(None, -18000)), ['S00526', 'Grant', 'Jennifer', '2015-09-17', '2016-01-22', '2016-04-15', '2016-08-30', '', '', ''], None, ['446BU', 'Cessna 182', 'IFR', 'Yes', 'No', '2016-10-27', '36']))
 
-    lessons
+    # Flight with an instructor
+    if instructor is not None:
+        if is_multiengine(plane) and not teaches_multiengine(instructor):
+            return True
+        return False
+    
+    # Flight without an instructor
+    else:
+        # Check if student needs advanced endorsement
+        if is_advanced(plane):
+            if not pilots.has_advanced_endorsement(takeoff, student):  # Fixed!
+                return True
+        
+        # Check if student needs multiengine endorsement
+        if is_multiengine(plane):
+            if not pilots.has_multiengine_endorsement(takeoff, student):  # Fixed!
+                return True
+        
+        return False
 
 
 
@@ -188,7 +190,23 @@ def bad_ifr(takeoff,student,instructor,plane):
     Parameter plane: The school airplane
     Precondition: plane is a 7-element list of strings representing an airplane
     """
-    pass                    # Implement this function
+    # Plane must be IFR capable
+    if not is_ifr_capable(plane):
+        return True
+    
+    # Is there an instructor, do they have CFII
+    if instructor is not None:
+        if not teaches_instrument(instructor):
+            return True
+    # If solo, student must have instrument rating
+    else:
+        if not pilots.has_instrument_rating(takeoff, student):
+            return True
+    
+    # This could be a valid IFR flight
+    return False
+
+
 
 
 # FILENAMES
@@ -249,4 +267,78 @@ def list_endorsement_violations(directory):
         # Check if pilot/instructor is endorsed for the plane
         # Check if pilot/instructor is permitted to fly IFR in this plane
         # Add any violations to the result
-    pass
+    # Load in all of the files
+    students = utils.read_csv(os.path.join(directory, 'students.csv'))
+    instructors = utils.read_csv(os.path.join(directory, 'instructors.csv'))
+    fleet = utils.read_csv(os.path.join(directory, 'fleet.csv'))
+    lessons = utils.read_csv(os.path.join(directory, 'lessons.csv'))
+    
+    violations = []
+    
+    # For each lesson (skip header row)
+    for lesson in lessons[1:]:
+        # Parse lesson data
+        # STUDENT, AIRPLANE, INSTRUCTOR, TAKEOFF, LANDING, FILED, AREA
+        student_id = lesson[0]
+        plane_id = lesson[1]
+        instructor_id = lesson[2]
+        takeoff_str = lesson[3]
+        filed = lesson[5]  # VFR or IFR
+        
+        # Convert takeoff to datetime
+        takeoff = utils.str_to_time(takeoff_str)
+        
+        # Find student, instructor, and plane records
+        student = None
+        for s in students[1:]:
+            if s[0] == student_id:
+                student = s
+                break
+        
+        instructor = None
+        if instructor_id:  # If there's an instructor ID
+            for i in instructors[1:]:
+                if i[0] == instructor_id:
+                    instructor = i
+                    break
+        
+        plane = None
+        for p in fleet[1:]:
+            if p[0] == plane_id:
+                plane = p
+                break
+        
+        # Count violations for this lesson
+        violation_count = 0
+        violation_types = []
+        
+        # Check (1): Solo violation - student flies without instructor but hasn't soloed
+        if instructor is None:
+            if pilots.get_certification(takeoff, student) <= 1:
+                violation_count += 1
+                violation_types.append('Solo')
+        
+        # Check (2): Endorsement violation - wrong plane endorsement
+        if bad_endorsement(takeoff, student, instructor, plane):
+            violation_count += 1
+            violation_types.append('Endorsement')
+        
+        # Check (3): IFR violation - filed IFR but not qualified
+        if filed == 'IFR' and bad_ifr(takeoff, student, instructor, plane):
+            violation_count += 1
+            violation_types.append('IFR')
+        
+        # Add violation to results if any found
+        if violation_count > 0:
+            # Make a copy of the lesson
+            annotated_lesson = lesson[:]
+            
+            # Annotate with appropriate violation type
+            if violation_count > 1:
+                annotated_lesson.append('Credentials')
+            else:
+                annotated_lesson.append(violation_types[0])
+            
+            violations.append(annotated_lesson)
+    
+    return violations
