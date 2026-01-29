@@ -1,15 +1,17 @@
-# CornellPyFund Documentation
+# Cornell Python Fundamentals Documentation
 
 Welcome to my Cornell Python Fundamentals project documentation!
 
 ## Overview
-- This repository represents a reference to the basic python data types and fundamental libraries that were reviewed in this survey course. 
+- This repository represents a reference to the basic python data types and fundamental libraries that were reviewed in this set of survey courses offered by eCornell. 
 -
 - It also includes my submission for the capstone project.
 
 ## User Guides
-- [Basic Usage](guides/basic-usage.md)
-- [Advanced Features](guides/advanced-features.md)
+- [Flow Control](CIS554_structure-flow-concepts.pdf)
+- [Data Structures](CIS555_concepts-in-data-structors.pdf)
+- [Document Name](document-name.md)
+
 
 ## Contributing
 - [Contribution Guidelines](contributing.md)
