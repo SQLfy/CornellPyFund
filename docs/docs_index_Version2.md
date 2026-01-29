@@ -9,7 +9,7 @@ Welcome to my Cornell Python Fundamentals project documentation!
 
 ## User Guides
 - [Flow Control](CIS554_structure-flow-concepts.pdf)
-- [Data Structures](New-CIS555-Concepts-in-Data-Structures.pdf)
+- [Data Structures](New-CIS555-Concepts-in-Data-Structures-indd.pdf)
 
 ## Contributing
 - [Contribution Guidelines](contributing.md)
